@@ -45,3 +45,62 @@ JSLib.setElementEnabledState = function(domElement, state) {
 JSLib.clearSelectItemsExceptFirstItem = function clearSelectItemsExceptFirstItem(domElement) {
     domElement.find('option:gt(0)').remove();
 };
+
+JSLib.makeAjaxRequest = function (uri, formMethod, postData, successCallback, failureCallback) {
+    $.ajax({
+        url: ScoutLoginApplication.rootPath + uri,
+        method: formMethod,
+        dataType: 'json',
+        data: postData,
+        headers: {
+            "X-RequestVerificationToken": $("input[name='__RequestVerificationToken']").val()
+        },
+        success: function (data) {
+            successCallback(data);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            failureCallback(xhr, textStatus, errorThrown);
+        }
+
+    });
+}
+
+/**
+ * Checks if a string can be parsed as JSON.
+ * Borrpwed from http://stackoverflow.com/questions/3710204/how-to-check-if-a-string-is-a-valid-json-string-in-javascript-without-using-try
+ * @param {} str 
+ * @returns {} 
+ */
+JSLib.IsJsonString = function (str) {
+    var isValidJson;
+    try {
+        //Try using native JSON parser 
+        JSON.parse(str);
+        isValidJson = true;
+    } catch (e) {
+        try {
+            //Try using JQuery
+            $.parseJSON(str);
+            isValidJson = true;
+        } catch (ex) {
+            isValidJson = false;
+        }
+    }
+    return isValidJson;
+}
+
+JSLib.stringAsJson = function (str) {
+    var toReturn = {};
+    if (!JSLib.IsJsonString(str)) return toReturn;
+    try {
+        //Try using native JSON parser 
+        toReturn = JSON.parse(str);
+    } catch (e) {
+        try {
+            //Try using JQuery
+            toReturn = $.parseJSON(str);
+        } catch (ex) {
+        }
+    }
+    return toReturn;
+}
